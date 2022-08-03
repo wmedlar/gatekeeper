@@ -18,6 +18,15 @@ spec:
     - max: 65535
       min: 1
     rule: MustRunAs
+  {{- if (or .Values.audit.hostNetwork .Values.controllerManager.hostNetwork) }}
+  hostNetwork: true
+  hostPorts:
+  {{- $hostPorts := list .Values.audit.metricsPort .Values.audit.healthPort .Values.controllerManager.port .Values.controllerManager.metricsPort .Values.controllerManager.healthPort | uniq | sortAlpha -}}
+  {{- range $hostPorts }}
+  - min: {{ . }}
+    max: {{ . }}
+  {{- end }}
+  {{- end }}
   requiredDropCapabilities:
   - ALL
   runAsUser:
